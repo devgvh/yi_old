@@ -28,6 +28,7 @@ bagua_dict = {
     "阴阴阳": "艮",
     "阴阴阴": "坤"
 }'''
+
 bagua_with_elements_dict = {
     "阳阳阳": "天",
     "阳阳阴": "泽",
@@ -105,6 +106,8 @@ liu_shi_gua = {
     "山地":"剥",
     "地地":"坤"
 }
+
+
 
 def generate_and_sum():
     num1 = random.choice([2, 3])
@@ -209,6 +212,36 @@ def get_dongyao_weizhi(yao):
         if wz in yao:
             return i + 1
 
+def get_numlist(gua, yao):
+    guaxiang = ''
+    yinyang_list = ''
+    for key, value in liu_shi_gua.items():
+        if value == gua:
+            guaxiang = key
+    print(guaxiang)
+    for k, v in bagua_with_elements_dict.items():
+        if v == guaxiang[0]:
+            yinyang_list = k[::-1] + yinyang_list
+        if v == guaxiang[1]:
+            yinyang_list = yinyang_list + k[::-1]
+
+    yinyang_list = yinyang_list[::-1]
+    dongyao_num = get_dongyao_weizhi(yao)
+    numlist = []
+    for x in yinyang_list:
+        if x == '阴':
+            numlist.append(8)
+        else:
+            numlist.append(7)
+    if yao != '':
+        numlist[dongyao_num-1] = 9 if numlist[dongyao_num-1] == 7 else 6
+
+    return numlist
+
+
+
+
+
 def get_guaming_dongyao(yin_yang_list, num_list):
     ret = find_special_number(num_list)
     #if ret == (0, -1):
@@ -249,6 +282,10 @@ def suan_yi_gua():
     yin_yang_list = convert_to_yin_yang(num_list)
     #print(yin_yang_list)
     return get_guaming_dongyao(yin_yang_list, num_list)
+
+#gua, yao, numlist = suan_yi_gua()
+#print(gua, yao, numlist)
+#print(get_numlist(gua[2:], yao))
 
 #print(suan_yi_gua())
 '''

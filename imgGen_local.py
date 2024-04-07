@@ -139,16 +139,27 @@ def get_bian_gua(numlist):
     #print(gua_ming)
     return gua_ming, biangua_numlist
 
-def local_draw(w, h, f_size, guahua_base, large_size):
+def getans(guaret):
+    return guaret[0], guaret[1], suan_fa_yj.get_numlist(guaret[0], guaret[1])
+
+def local_draw(w, h, f_size, guahua_base, large_size, guaret=None):
     # 加载字体样式
     image = Image.new('RGB', (w, h), 'white')
     draw = ImageDraw.Draw(image)
 
-    ret = suan_fa_yj.suan_yi_gua()
+    if guaret == None:
+        ret = suan_fa_yj.suan_yi_gua()
+    else:
+        ret = getans(guaret)
+
     print(ret)
     gua, yao, numlist = ret[0], ret[1], ret[2]
     yao_weizhi = suan_fa_yj.get_dongyao_weizhi(yao)
     print('yaoweizhi:', yao, yao_weizhi)
+
+    for key, value in suan_fa_yj.liu_shi_gua.items():
+        if value == ret[0]:
+            gua = key+ret[0]
 
 
     miaoshu = random.choice(gua_map[gua[2:]]).split()
@@ -190,7 +201,7 @@ def local_draw(w, h, f_size, guahua_base, large_size):
         guahua_base = 3
         draw_gua_hua2(draw, w - 10*guahua_base, guahua_base, guahua_base, '', numlist)
         draw_gua_ming2(draw, '之'+gua_ming[2:], 16,  guahua_base, w*3/4)
-    #image.show()
+    image.show()
     image.save("output_s.jpg")
 
 def read_guaming(gua_map):
@@ -242,6 +253,11 @@ app = Flask(__name__)
 @app.route('/api', methods=['GET'])
 def api():
     return jsonify(txt_get())
+
+@app.route('/jiegua/<param1>/<param2>')
+def some_endpoint(param1, param2):
+    local_draw(240, 240, 16, 11, 20, (param1, param2))
+    return send_file("output_s.jpg", mimetype='image/jpeg', as_attachment=False)
 
 @app.route('/local', methods=['GET'])
 def local_draw_api():
@@ -341,5 +357,6 @@ if __name__ == '__main__':
     #for key in tuan_map.keys():
     #    print(guaxu_map[key], key, len(tuan_map[key]), tuan_map[key])
     #print(len(tuan_map), len(guaxu_map))
-    #local_draw(240, 240, 16, 11, 20)
+    ret = suan_fa_yj.suan_yi_gua()
+    #local_draw(240, 240, 16, 11, 20, (ret[0][2:], ret[1]))
     app.run(host='0.0.0.0', port=80, debug = True, threaded = True)
