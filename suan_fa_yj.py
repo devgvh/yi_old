@@ -107,7 +107,61 @@ liu_shi_gua = {
     "地地":"坤"
 }
 
+gua_map = {key: [] for key in liu_shi_gua.values()}
+yi_zhengwen_map = {key: [] for key in liu_shi_gua.values()}
+yi_xiang_map = {key: [] for key in liu_shi_gua.values()}
+tuan_map = {key: '' for key in liu_shi_gua.values()}
+guaxu_map = {key: 0 for key in liu_shi_gua.values()}
 
+def read_guaming(gua_map):
+    with open('data/guaming_miaoshu.dat', 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip('\n')
+            guaming, miaoshu = line.split(',')
+            tmplist = gua_map.get(guaming, [])
+            tmplist.append(miaoshu)
+
+def read_tuanci(tuan_map, guaxu_map):
+    with open('data/tuan_ci.dat', 'r', encoding='utf-8') as f:
+        while True:
+            guaming = f.readline()
+            tuanci = f.readline()
+            if guaming == '' or tuanci == '':
+                break
+            guaming = guaming.strip()
+            tuanci = tuanci.strip('。\n')
+            guaxu, guaming = guaming.split(' ')
+            tuan_map[guaming] = tuanci
+            guaxu_map[guaming] = guaxu
+            #print(guaxu, guaming, tuanci)
+def read_yijing(yijing_zhengwen):
+    with open('data/yi_zhengwen.dat', 'r', encoding='utf-8') as f:
+        textlist = f.readlines()
+        tmp_guaming = ''
+        for i, line in enumerate(textlist):
+            line = line.strip('\n\xa0。')
+            if i % 7 == 0:
+                guaming, guaci = line.split('：')
+                tmp_guaming = guaming
+            yi_zhengwen_map[tmp_guaming].append(line)
+            #print(line)
+
+def read_xiang(yijing_xiang):
+    with open('data/xiao_xiang.dat', 'r', encoding='utf-8') as f:
+        textlist = f.readlines()
+        for i, line in enumerate(textlist):
+            tmp_guaming = ''
+            xianglist = []
+            line = line.strip('\n?？')
+            xianglist = line.split(',')
+            yijing_xiang[xianglist[1]] = xianglist
+            #print(xianglist[1], len(xianglist), yijing_xiang[xianglist[1]])
+            yijing_xiang[xianglist[1]].pop(1)
+
+read_guaming(gua_map)
+read_yijing(yi_zhengwen_map)
+read_xiang(yi_xiang_map)
+read_tuanci(tuan_map, guaxu_map)
 
 def generate_and_sum():
     num1 = random.choice([2, 3])
@@ -238,9 +292,28 @@ def get_numlist(gua, yao):
 
     return numlist
 
+def get_bianyao_num(dongyao):
+    xuhao_list = ['上', '五', '四', '三', '二', '初']
+    for i, item in enumerate(xuhao_list):
+        if item in dongyao:
+            return i
 
+def get_bian_gua(numlist):
+    biangua_numlist = []
+    for i, num in enumerate(numlist):
+        if numlist[i] == 6:
+            biangua_numlist.append(7)
+        elif numlist[i] == 9:
+            biangua_numlist.append(8)
+        else:
+            biangua_numlist.append(numlist[i])
 
-
+    yin_yang_list = convert_to_yin_yang(biangua_numlist)
+    #print(yin_yang_list)
+    xiang_2 = get_bagua(yin_yang_list)
+    gua_ming = xiang_2 + liu_shi_gua[xiang_2]
+    #print(gua_ming)
+    return gua_ming, biangua_numlist
 
 def get_guaming_dongyao(yin_yang_list, num_list):
     ret = find_special_number(num_list)
@@ -287,7 +360,8 @@ def suan_yi_gua():
 #print(gua, yao, numlist)
 #print(get_numlist(gua[2:], yao))
 
-#print(suan_yi_gua())
+if __name__ == '__main__':
+    print(suan_yi_gua())
 '''
 ret = suan_yi_gua("阳阳阳阳阳阳", [9,9,9,9,9,9])
 ret = suan_yi_gua("阴阴阴阴阴阴", [6,6,6,6,6,6])

@@ -66,3 +66,17 @@ def ai_jiegua(gua, yao):
     time.sleep(3)
     return SparkApi.answer
 
+def get_ai_jie_gua(gua, yao):
+    text = ai_jiegua(gua, yao)
+    #print("大模型输出：", text)
+    result = text.split("\n")
+    result2 = [s for s in result if s != ""]
+    if len(result2) == 0:
+        result2.append('解卦失败~~~')
+    if len(result2) < 5:
+        for i in range(5 - len(result2)):
+            result2.append('')
+    with open("ai_jiagua.log", "a") as f:
+        f.write('|'.join(result2) + '\n')
+    return result2
+
